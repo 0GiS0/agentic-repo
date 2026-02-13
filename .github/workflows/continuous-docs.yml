@@ -1,24 +1,6 @@
 name: 📚 Continuous Documentation
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - "**/*.js"
-      - "**/*.ts"
-      - "**/*.py"
-      - "**/*.go"
-      - "**/*.java"
-      - "**/*.cs"
-      - "**/*.rb"
-      - "**/*.rs"
-      - "**/*.php"
-      - "**/*.swift"
-      - "**/*.kt"
-      - "**/*.sh"
-      - "**/*.yml"
-      - "**/*.yaml"
-      - "**/*.json"
   workflow_call:
     inputs:
       pr_number:
