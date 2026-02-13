@@ -11,6 +11,10 @@ on:
         description: 'Type of item (issue or pull_request)'
         required: true
         type: string
+      item_author:
+        description: 'Item author login'
+        required: false
+        type: string
       item_number:
         description: 'Item number'
         required: true
@@ -39,15 +43,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 🔐 Verify author is repo owner
+        id: author_check
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          INPUT_AUTHOR: ${{ inputs.item_author }}
+        run: |
+          author=""
+          if [ "$EVENT_NAME" = "workflow_call" ]; then
+            author="$INPUT_AUTHOR"
+          elif [ "$EVENT_NAME" = "issues" ]; then
+            author="$ISSUE_AUTHOR"
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            author="$PR_AUTHOR"
+          fi
+
+          allowed="false"
+          if [ "$author" = "$REPO_OWNER" ]; then
+            allowed="true"
+          fi
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          if [ "$allowed" != "true" ]; then
+            echo "Skipping: author $author is not repository owner $REPO_OWNER."
+          fi
+
       - name: 📥 Checkout repository
+        if: ${{ steps.author_check.outputs.allowed == 'true' }}
         uses: actions/checkout@v4
 
       - name: 📦 Install GitHub Copilot CLI
+        if: ${{ steps.author_check.outputs.allowed == 'true' }}
         run: |
           curl -fsSL https://gh.io/copilot-install | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: 🏷️ Analyze and assign labels
+        if: ${{ steps.author_check.outputs.allowed == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.COPILOT_PAT }}
           ITEM_TYPE: ${{ inputs.item_type || (github.event_name == 'issues' && 'issue' || 'pull_request') }}

@@ -37,7 +37,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 🔐 Verify author is repo owner
+        id: author_check
+        env:
+          REPO_OWNER: ${{ github.repository_owner }}
+          INPUT_AUTHOR: ${{ inputs.pr_author }}
+        run: |
+          allowed="false"
+          if [ "$INPUT_AUTHOR" = "$REPO_OWNER" ]; then
+            allowed="true"
+          fi
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          if [ "$allowed" != "true" ]; then
+            echo "Skipping: author $INPUT_AUTHOR is not repository owner $REPO_OWNER."
+          fi
+
       - name: 📥 Checkout PR branch
+        if: ${{ steps.author_check.outputs.allowed == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -45,11 +62,13 @@ jobs:
           token: ${{ secrets.COPILOT_PAT }}
 
       - name: 📦 Install GitHub Copilot CLI
+        if: ${{ steps.author_check.outputs.allowed == 'true' }}
         run: |
           curl -fsSL https://gh.io/copilot-install | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: 📚 Analyze code changes and documentation drift
+        if: ${{ steps.author_check.outputs.allowed == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.COPILOT_PAT }}
           PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
