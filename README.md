@@ -21,8 +21,8 @@ Hey developer 👋🏻! This repository contains a collection of **reusable GitH
 - **🏷️ Smart Labeler** — Analyzes issues and PRs to assign the most appropriate labels
 - **💡 Copilot Suggester** — Scans your codebase and creates discussion ideas for improvements (security, performance, UX, etc.)
 - **🏷️✨ Label Beautifier** — Modernizes all your labels with emojis, descriptions, and consistent colors
-- **� Continuous Documentation** — Improves README fragments and API docs as code evolves; nudges PR authors when explanations drift from the actual implementation
-- **�🚀 Workflow Installer** — Deploy these workflows to multiple repos with a single click
+- **📝 Continuous Documentation** — Improves README fragments and API docs as code evolves; nudges PR authors when explanations drift from the actual implementation
+- **🚀 Workflow Installer** — Deploy these workflows to multiple repos with a single click
 
 ## 🛠️ Technologies
 
